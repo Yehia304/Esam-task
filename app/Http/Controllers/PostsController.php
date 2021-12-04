@@ -5,20 +5,22 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class PostsController extends Controller
 {
 
-    public function show($id)
+    public function show(Request $request,$id)
     {
-        try {
 
-            $posts = User::findOrFail($id)->posts()->paginate(5);
-            return view('Users/posts', ['posts' => $posts]);
-
-        } catch (\Exception $e) {
-
-            return redirect()->back()->with('Not found');
+        if ($request->ajax()) {
+            $posts = User::findOrFail($id)->posts;
+            return Datatables::of($posts)
+                ->addIndexColumn()
+                ->rawColumns(['action'])
+                ->make(true);
         }
+        return view('Users.posts',);
+
     }
 }
